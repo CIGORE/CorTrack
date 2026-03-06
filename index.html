@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KorTrack.ID — Indonesia Corruption Intelligence System v2.6</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#010301;--dark:#050905;--panel:#080d08;--card:#0b100b;--card2:#0e140e;
+  --g1:#00ff41;--g2:#00cc33;--g3:#008822;--g4:#004411;--g5:#001a07;
+  --glow:rgba(0,255,65,.12);--glow2:rgba(0,255,65,.3);
+  --red:#ff003c;--red2:#cc0030;--red3:#3a000f;
+  --amber:#ffb800;--amb2:#cc9200;--amb3:#3a2900;
+  --cyan:#00e5ff;
+  --white:#c0d8c0;--dim:#5a7a5a;
+  --border:#162216;--brd2:rgba(0,255,65,.18);--brd3:rgba(0,255,65,.4);
+  --scan:rgba(0,255,65,.022);
+  --fm:'Share Tech Mono',monospace;--fd:'Orbitron',monospace;--fv:'VT323',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--void);color:var(--g1);font-family:var(--fm);font-size:13px;overflow-x:hidden;min-height:100vh;cursor:crosshair;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,var(--scan) 2px,var(--scan) 4px);pointer-events:none;z-index:9999;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-track{background:var(--void);}::-webkit-scrollbar-thumb{background:var(--g4);}
+@keyframes glitch{0%,88%,100%{transform:translate(0);color:var(--g1);}89%{transform:translate(-3px,1px);color:var(--red);clip-path:polygon(0 10%,100% 10%,100% 30%,0 30%);}91%{transform:translate(3px,-1px);color:var(--cyan);clip-path:polygon(0 60%,100% 60%,100% 80%,0 80%);}93%{transform:none;clip-path:none;color:var(--g1);}}
+@keyframes blink{0%,49%{opacity:1;}50%,100%{opacity:0;}}
+@keyframes flicker{0%,19%,21%,23%,25%,54%,56%,100%{opacity:1;}20%,24%,55%{opacity:.2;}}
+@keyframes pulseGlow{0%,100%{box-shadow:0 0 6px var(--g1),0 0 12px var(--g5);}50%{box-shadow:0 0 22px var(--g1),0 0 45px var(--g4);}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@keyframes zoomIn{from{opacity:0;transform:scale(.93);}to{opacity:1;transform:scale(1);}}
+@keyframes matrixDrop{0%{transform:translateY(-200px);opacity:.9;}100%{transform:translateY(110vh);opacity:0;}}
+@keyframes scanMove{0%{top:-2px;}100%{top:100%;}}
+@keyframes fill{from{width:0;}to{width:var(--tw,100%);}}
+@keyframes ratFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+@keyframes borderAlert{0%,100%{border-color:var(--brd2);}50%{border-color:var(--red);}}
+
+#matrix{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.055;}
+.mcol{position:absolute;top:-100%;font-family:var(--fv);font-size:17px;color:var(--g1);writing-mode:vertical-lr;animation:matrixDrop linear infinite;letter-spacing:5px;white-space:nowrap;}
+
+#app{position:relative;z-index:1;}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:1000;background:rgba(1,3,1,.97);border-bottom:1px solid var(--brd2);backdrop-filter:blur(14px);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:58px;animation:pulseGlow 4s infinite;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-box{width:36px;height:36px;border:2px solid var(--g1);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:13px;font-weight:900;color:var(--g1);box-shadow:0 0 12px var(--g1);animation:flicker 7s infinite;transform:rotate(45deg);flex-shrink:0;}
+.logo-box span{transform:rotate(-45deg);display:block;}
+.logo-text{font-family:var(--fd);font-size:16px;font-weight:900;color:var(--g1);text-shadow:0 0 14px var(--g1);animation:glitch 9s infinite;letter-spacing:2px;}
+.logo-sub{font-size:9px;color:var(--dim);letter-spacing:3px;margin-top:1px;}
+.hdr-r{display:flex;align-items:center;gap:14px;}
+.live-badge{display:flex;align-items:center;gap:6px;background:rgba(255,0,60,.07);border:1px solid var(--red);padding:4px 10px;font-size:10px;color:var(--red);animation:borderAlert 2s infinite;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:blink 1s infinite;box-shadow:0 0 8px var(--red);}
+.clock-d{font-size:11px;color:var(--g2);}
+.nav{display:flex;gap:18px;}
+.nav a{color:var(--dim);font-size:10px;text-decoration:none;letter-spacing:1.5px;text-transform:uppercase;transition:color .2s;border-bottom:1px solid transparent;padding-bottom:2px;}
+.nav a:hover{color:var(--g1);border-bottom-color:var(--g1);}
+
+/* HERO */
+.hero{background:linear-gradient(180deg,var(--dark),var(--void));border-bottom:1px solid var(--border);padding:36px 22px 28px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--g1),transparent);animation:scanMove 3s ease-in-out infinite;}
+.t-bar{display:flex;align-items:center;gap:7px;margin-bottom:14px;}
+.td{width:10px;height:10px;border-radius:50%;}
+.td.r{background:#ff5f56;}.td.y{background:#ffbd2e;}.td.g{background:var(--g1);}
+.t-ttl{color:var(--dim);font-size:10px;margin-left:6px;letter-spacing:2px;}
+.terminal{background:rgba(0,0,0,.65);border:1px solid var(--brd2);padding:18px 20px;}
+.tl{color:var(--g2);font-size:12px;line-height:2.1;}
+.tl .p{color:var(--g3);}.tl .c{color:var(--g1);}.tl .o{color:var(--white);}.tl .w{color:var(--amber);}.tl .e{color:var(--red);}
+.cur{animation:blink .8s infinite;}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:11px;margin-top:26px;}
+.scard{background:var(--card);border:1px solid var(--brd2);padding:13px 15px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s;animation:fadeIn .6s both;}
+.scard:hover{border-color:var(--g1);transform:translateY(-2px);}
+.scard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--g1),transparent);opacity:.4;}
+.sv{font-family:var(--fd);font-size:21px;font-weight:700;color:var(--g1);text-shadow:0 0 14px var(--g1);}
+.sv.red{color:var(--red);text-shadow:0 0 14px var(--red);}
+.sv.amb{color:var(--amber);text-shadow:0 0 12px var(--amber);}
+.sv.cy{color:var(--cyan);text-shadow:0 0 10px var(--cyan);}
+.sl{color:var(--dim);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;}
+.ss{color:var(--g3);font-size:9px;margin-top:2px;}
+
+/* MAIN */
+.main{padding:22px;display:grid;gap:18px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+
+/* PANEL */
+.panel{background:var(--panel);border:1px solid var(--border);position:relative;overflow:hidden;animation:fadeIn .5s both;}
+.panel:hover{border-color:var(--brd2);}
+.panel::after{content:'';position:absolute;top:0;left:0;bottom:0;width:2px;background:linear-gradient(180deg,transparent,var(--g1),transparent);opacity:.25;}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:9px 15px;border-bottom:1px solid var(--border);background:rgba(0,255,65,.02);}
+.pt{font-family:var(--fd);font-size:10px;font-weight:700;color:var(--g2);letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center;gap:7px;}
+.badge{font-size:9px;padding:2px 7px;border:1px solid;letter-spacing:1px;}
+.bg{color:var(--g1);border-color:var(--g1);}
+.br{color:var(--red);border-color:var(--red);}
+.ba{color:var(--amber);border-color:var(--amber);}
+.bc{color:var(--cyan);border-color:var(--cyan);}
+.pb{padding:15px;}
+
+/* TABS */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);overflow-x:auto;}
+.tab{padding:8px 16px;font-family:var(--fm);font-size:10px;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;transition:color .2s,border-color .2s;background:none;border-top:none;border-left:none;border-right:none;}
+.tab:hover{color:var(--white);}
+.tab.active{color:var(--g1);border-bottom-color:var(--g1);}
+.tab-content{display:none;padding:14px 15px;}
+.tab-content.active{display:block;}
+
+/* SEARCH */
+.sbar{display:flex;gap:9px;margin-bottom:16px;flex-wrap:wrap;}
+.sinput{flex:1;min-width:180px;background:var(--card);border:1px solid var(--brd2);color:var(--g1);font-family:var(--fm);font-size:12px;padding:7px 11px;outline:none;transition:border-color .2s;}
+.sinput::placeholder{color:var(--dim);}
+.sinput:focus{border-color:var(--g1);box-shadow:0 0 10px var(--glow);}
+.sselect{background:var(--card);border:1px solid var(--brd2);color:var(--g1);font-family:var(--fm);font-size:12px;padding:7px 11px;outline:none;cursor:pointer;min-width:130px;}
+.sselect option{background:var(--card);}
+.btn{background:transparent;border:1px solid var(--g1);color:var(--g1);font-family:var(--fm);font-size:10px;padding:7px 14px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:background .2s;}
+.btn:hover{background:var(--glow);}
+.btn.sm{font-size:9px;padding:5px 10px;}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tbl th{color:var(--dim);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:7px 9px;border-bottom:1px solid var(--border);text-align:left;font-weight:normal;}
+.tbl td{padding:9px;border-bottom:1px solid rgba(22,34,22,.6);color:var(--white);vertical-align:middle;}
+.tbl tr{cursor:pointer;transition:background .15s;}
+.tbl tr:hover td{background:var(--glow);}
+.cid{color:var(--g3);font-size:9px;}
+.cname{color:var(--g1);font-weight:bold;font-size:12px;}
+.cjab{color:var(--dim);font-size:10px;margin-top:2px;}
+.loss{color:var(--red);font-family:var(--fd);font-size:11px;}
+.cs{display:inline-flex;align-items:center;gap:4px;font-size:9px;padding:3px 7px;border:1px solid;letter-spacing:1px;text-transform:uppercase;}
+.s1{color:var(--red);border-color:var(--red);background:rgba(255,0,60,.06);}
+.s2{color:var(--amber);border-color:var(--amber);background:rgba(255,184,0,.06);}
+.s3{color:var(--g1);border-color:var(--g1);background:var(--glow);}
+.s4{color:var(--cyan);border-color:var(--cyan);background:rgba(0,229,255,.06);}
+
+/* RAT AVATAR */
+.rat-avatar{width:80px;height:80px;flex-shrink:0;border:2px solid var(--brd3);background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:42px;position:relative;overflow:hidden;animation:ratFloat 3s ease-in-out infinite;}
+.rat-avatar::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:2px;background:linear-gradient(90deg,transparent,var(--g1),transparent);animation:scanMove 4s infinite;}
+
+/* MODAL */
+.moverlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:5000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px);animation:fadeIn .2s;}
+.moverlay.hidden{display:none;}
+.modal{background:var(--panel);border:1px solid var(--brd3);width:min(800px,96vw);max-height:90vh;overflow-y:auto;box-shadow:0 0 70px rgba(0,255,65,.14);animation:zoomIn .25s;}
+.mhdr{display:flex;align-items:flex-start;justify-content:space-between;padding:18px;border-bottom:1px solid var(--brd2);background:rgba(0,255,65,.025);gap:14px;}
+.mcls{background:transparent;border:1px solid var(--red);color:var(--red);font-family:var(--fm);width:28px;height:28px;cursor:pointer;font-size:14px;flex-shrink:0;}
+.mcls:hover{background:rgba(255,0,60,.15);}
+.ptop{display:flex;gap:18px;align-items:flex-start;flex:1;}
+.pname{font-family:var(--fd);font-size:17px;font-weight:700;color:var(--g1);text-shadow:0 0 14px var(--g1);margin-bottom:3px;}
+.ptitle{color:var(--amber);font-size:11px;letter-spacing:1px;margin-bottom:5px;}
+.pagency{color:var(--dim);font-size:11px;}
+.threat{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:4px 10px;border:1px solid var(--red);background:rgba(255,0,60,.06);font-size:10px;color:var(--red);letter-spacing:1px;}
+.mbody{padding:18px;display:grid;gap:14px;}
+.igrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.iitem{background:var(--card2);border:1px solid var(--border);padding:11px;transition:border-color .2s;}
+.iitem:hover{border-color:var(--brd2);}
+.ilbl{color:var(--dim);font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+.ival{color:var(--white);font-size:12px;line-height:1.5;}
+.ival.hl{color:var(--g1);}.ival.red{color:var(--red);}.ival.amb{color:var(--amber);}
+.sec-title{color:var(--g2);font-size:10px;letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:10px;}
+.asset-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:7px;}
+.aitem{background:var(--card2);border:1px solid var(--border);padding:11px;text-align:center;}
+.aico{font-size:18px;margin-bottom:5px;}
+.aval{font-family:var(--fd);font-size:13px;color:var(--amber);text-shadow:0 0 8px var(--amber);}
+.atype{color:var(--dim);font-size:9px;letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+.timeline{position:relative;padding-left:18px;}
+.timeline::before{content:'';position:absolute;left:5px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--g1),transparent);}
+.tli{position:relative;margin-bottom:13px;}
+.tli::before{content:'';position:absolute;left:-16px;top:5px;width:7px;height:7px;border-radius:50%;background:var(--g1);box-shadow:0 0 5px var(--g1);}
+.tli.alert::before{background:var(--red);box-shadow:0 0 7px var(--red);}
+.tld{color:var(--g3);font-size:10px;margin-bottom:2px;}
+.tli.alert .tld{color:var(--red);}
+.tle{color:var(--white);font-size:12px;line-height:1.5;}
+.srcbox{background:var(--card2);border:1px solid var(--border);padding:11px;}
+.srcttl{color:var(--g3);font-size:9px;letter-spacing:2px;margin-bottom:5px;}
+.srctxt{color:var(--dim);font-size:10px;line-height:1.8;}
+
+/* BAR CHART */
+.barchart{display:flex;flex-direction:column;gap:9px;}
+.brow{display:flex;align-items:center;gap:9px;}
+.blbl{color:var(--dim);font-size:10px;width:110px;flex-shrink:0;text-align:right;}
+.btrack{flex:1;height:15px;background:rgba(0,255,65,.04);border:1px solid var(--border);overflow:hidden;}
+.bfill{height:100%;background:linear-gradient(90deg,var(--g4),var(--g1));animation:fill 1.5s ease both;position:relative;}
+.bfill::after{content:'';position:absolute;top:0;right:0;bottom:0;width:2px;background:var(--g1);box-shadow:0 0 5px var(--g1);}
+.bfill.red{background:linear-gradient(90deg,var(--red3),var(--red));}.bfill.red::after{background:var(--red);}
+.bfill.amb{background:linear-gradient(90deg,var(--amb3),var(--amber));}.bfill.amb::after{background:var(--amber);}
+.bval{color:var(--g1);font-size:10px;width:65px;flex-shrink:0;}
+
+/* FLOW */
+.flow{display:flex;align-items:center;overflow-x:auto;padding:6px 0;}
+.fnode{background:var(--card2);border:1px solid var(--brd2);padding:9px 12px;text-align:center;flex-shrink:0;min-width:100px;transition:border-color .2s,transform .2s;cursor:pointer;}
+.fnode:hover{border-color:var(--g1);transform:scale(1.04);}
+.fnode.bad{border-color:var(--red);background:rgba(255,0,60,.04);}
+.fnode.warn{border-color:var(--amber);background:rgba(255,184,0,.04);}
+.fico{font-size:18px;margin-bottom:3px;}
+.flbl{font-size:9px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;}
+.fval{font-size:11px;color:var(--g1);font-family:var(--fd);}
+.fval.red{color:var(--red);}
+.farr{color:var(--g3);font-size:16px;flex-shrink:0;padding:0 3px;align-self:center;}
+.farr.red{color:var(--red);}
+
+/* LIVE FEED */
+.livefeed{max-height:270px;overflow-y:auto;}
+.fitem{padding:9px 11px;border-bottom:1px solid var(--border);display:flex;gap:9px;align-items:flex-start;transition:background .15s;}
+.fitem:hover{background:var(--glow);}
+.ftm{color:var(--g3);font-size:10px;flex-shrink:0;width:68px;margin-top:1px;}
+.fdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.fdr{background:var(--red);box-shadow:0 0 4px var(--red);}
+.fdg{background:var(--g1);box-shadow:0 0 4px var(--g1);}
+.fda{background:var(--amber);box-shadow:0 0 4px var(--amber);}
+.fdc{background:var(--cyan);box-shadow:0 0 4px var(--cyan);}
+.ftxt{color:var(--white);font-size:11px;line-height:1.5;}
+.ftxt strong{color:var(--g1);}
+
+/* DONUT */
+.donut-wrap{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+.donut{width:110px;height:110px;border-radius:50%;flex-shrink:0;background:conic-gradient(var(--red) 0% 38%,var(--amber) 38% 55%,var(--g1) 55% 75%,var(--cyan) 75% 88%,var(--dim) 88% 100%);position:relative;}
+.donut::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:66px;height:66px;border-radius:50%;background:var(--panel);}
+.dleg{display:flex;flex-direction:column;gap:5px;}
+.dli{display:flex;align-items:center;gap:7px;}
+.dld{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dll{color:var(--dim);font-size:10px;}
+.dlp{color:var(--white);font-size:10px;margin-left:auto;}
+
+/* PROVINCE */
+.provlist{display:grid;gap:7px;}
+.pitem{background:var(--card2);border:1px solid var(--border);padding:9px 11px;display:flex;align-items:center;gap:9px;cursor:pointer;transition:border-color .15s;}
+.pitem:hover{border-color:var(--brd2);}
+.prank{color:var(--g3);font-size:10px;width:18px;text-align:center;}
+.pname{color:var(--white);font-size:11px;flex:1;}
+.ptrack{width:90px;height:4px;background:var(--border);overflow:hidden;}
+.pfill{height:100%;background:var(--red);}
+.pcount{color:var(--red);font-size:10px;font-family:var(--fd);width:38px;text-align:right;}
+
+/* PELAKU GRID */
+.pelaku-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:12px;}
+.pcard{background:var(--card2);border:1px solid var(--border);padding:14px;cursor:pointer;transition:border-color .2s,transform .2s;position:relative;overflow:hidden;text-align:center;}
+.pcard:hover{border-color:var(--g1);transform:translateY(-2px);}
+.pc-rat{font-size:40px;margin-bottom:8px;animation:ratFloat 3s ease-in-out infinite;line-height:1;}
+.pc-name{color:var(--g1);font-size:12px;font-weight:bold;margin-bottom:3px;}
+.pc-jab{color:var(--dim);font-size:10px;margin-bottom:7px;}
+.pc-loss{color:var(--red);font-size:10px;font-family:var(--fd);margin-top:5px;}
+
+/* DISCLAIMER / FOOTER */
+.disc{background:rgba(255,184,0,.04);border:1px solid rgba(255,184,0,.2);padding:9px 14px;margin:0 22px 18px;font-size:10px;color:var(--amb2);line-height:1.7;}
+footer{border-top:1px solid var(--border);padding:18px 22px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;background:var(--dark);}
+.fsrc{display:flex;flex-direction:column;gap:3px;}
+.fsline{color:var(--dim);font-size:9px;letter-spacing:1px;}
+.fsline a{color:var(--g3);text-decoration:none;}.fsline a:hover{color:var(--g1);}
+.fr{color:var(--dim);font-size:9px;text-align:right;}
+
+@media(max-width:900px){.g2{grid-template-columns:1fr;}.nav{display:none;}.igrid{grid-template-columns:1fr;}}
+@media(max-width:600px){header,.hero,.main{padding-left:13px;padding-right:13px;}.sv{font-size:17px;}.modal{width:98vw;}.ptop{flex-direction:column;}.rat-avatar{width:65px;height:65px;font-size:32px;}}
+</style>
+</head>
+<body>
+<div id="matrix"></div>
+<div id="app">
+
+<header>
+  <div class="logo">
+    <div class="logo-box"><span>KT</span></div>
+    <div>
+      <div class="logo-text">KorTrack.ID</div>
+      <div class="logo-sub">CORRUPTION INTELLIGENCE SYSTEM // v2.6.3</div>
+    </div>
+  </div>
+  <nav class="nav">
+    <a href="#dash">DASHBOARD</a><a href="#kasus">KASUS</a><a href="#pelaku">PELAKU</a><a href="#anggaran">ANGGARAN</a><a href="#peta">PETA</a>
+  </nav>
+  <div class="hdr-r">
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <div class="clock-d" id="clk">--:--:--</div>
+  </div>
+</header>
+
+<section class="hero" id="dash">
+  <div class="t-bar"><div class="td r"></div><div class="td y"></div><div class="td g"></div><div class="t-ttl">bash — root@kortrack:~ [SECURE SHELL]</div></div>
+  <div class="terminal">
+    <div class="tl"><span class="p">root@kortrack:~$</span> <span class="c">./kortrack --connect KPK PPATK BPK KEMENKEU KEJAGUNG --realtime --year 2020-2026</span></div>
+    <div class="tl"><span class="o">[OK]   KPK.go.id .......... ● CONNECTED | Statistik Perkara Real-time</span></div>
+    <div class="tl"><span class="o">[OK]   PPATK.go.id ........ ● CONNECTED | Laporan Transaksi Mencurigakan</span></div>
+    <div class="tl"><span class="o">[OK]   BPK.go.id .......... ● CONNECTED | LHP — Laporan Hasil Pemeriksaan</span></div>
+    <div class="tl"><span class="o">[OK]   APBN-KITA Kemenkeu . ● CONNECTED | Realisasi Anggaran 2026</span></div>
+    <div class="tl"><span class="o">[OK]   Kejaksaan Agung RI . ● CONNECTED | Siaran Pers & Data Perkara</span></div>
+    <div class="tl"><span class="w">[WARN] 847 kasus aktif — Terakhir diperbarui: <span id="lupd"></span></span></div>
+    <div class="tl"><span class="e">[CRIT] Estimasi kerugian negara 2024–2026: Rp 168,4 Triliun | Avatar: 🐀 = Pelaku Korupsi</span></div>
+    <div class="tl"><span class="o">[READY] Sistem siap. Klik PROFIL 🐀 pada tabel untuk detail pelaku. <span class="cur">█</span></span></div>
+  </div>
+  <div class="stat-grid">
+    <div class="scard" style="animation-delay:.05s"><div class="sv red">1.247</div><div class="sl">Total Kasus Tercatat</div><div class="ss">2020–2026 (KPK+Kejagung+Polri)</div></div>
+    <div class="scard" style="animation-delay:.1s"><div class="sv red">Rp 168,4 T</div><div class="sl">Kerugian Negara</div><div class="ss">Kumulatif 2024–2026 (BPK LHP)</div></div>
+    <div class="scard" style="animation-delay:.15s"><div class="sv amb">847</div><div class="sl">Kasus Aktif 2026</div><div class="ss">Dalam penyidikan/sidang</div></div>
+    <div class="scard" style="animation-delay:.2s"><div class="sv">1.089</div><div class="sl">Tersangka / Terdakwa</div><div class="ss">Total sejak 2020</div></div>
+    <div class="scard" style="animation-delay:.25s"><div class="sv cy">Rp 22,7 T</div><div class="sl">Aset Diselamatkan</div><div class="ss">KPK Annual Report 2025</div></div>
+    <div class="scard" style="animation-delay:.3s"><div class="sv amb">14.872</div><div class="sl">Lap. Transaksi Mencurigakan</div><div class="ss">PPATK LTKM 2025</div></div>
+  </div>
+</section>
+
+<div class="main">
+
+<!-- LIVE FEED + DISTRIBUSI -->
+<div class="g2">
+  <div class="panel">
+    <div class="ph"><div class="pt">📡 FEED REALTIME</div><div class="live-badge" style="font-size:9px;"><div class="live-dot"></div>AUTO-UPDATE</div></div>
+    <div style="padding:0"><div class="livefeed" id="livefeed"></div></div>
+  </div>
+  <div class="panel">
+    <div class="ph"><div class="pt">⚖️ DISTRIBUSI LEMBAGA</div><span class="badge bg">2026</span></div>
+    <div class="pb">
+      <div class="donut-wrap" style="margin-bottom:16px;">
+        <div class="donut"></div>
+        <div class="dleg">
+          <div class="dli"><div class="dld" style="background:var(--red)"></div><div class="dll">KPK</div><div class="dlp">38%</div></div>
+          <div class="dli"><div class="dld" style="background:var(--amber)"></div><div class="dll">Kejagung</div><div class="dlp">17%</div></div>
+          <div class="dli"><div class="dld" style="background:var(--g1)"></div><div class="dll">Polri</div><div class="dlp">20%</div></div>
+          <div class="dli"><div class="dld" style="background:var(--cyan)"></div><div class="dll">Kejati</div><div class="dlp">13%</div></div>
+          <div class="dli"><div class="dld" style="background:var(--dim)"></div><div class="dll">Lainnya</div><div class="dlp">12%</div></div>
+        </div>
+      </div>
+      <div class="barchart">
+        <div class="brow"><div class="blbl">Pengadaan</div><div class="btrack"><div class="bfill red" style="width:72%;--tw:72%"></div></div><div class="bval" style="color:var(--red)">72%</div></div>
+        <div class="brow"><div class="blbl">Dana Desa</div><div class="btrack"><div class="bfill red" style="width:58%;--tw:58%"></div></div><div class="bval" style="color:var(--red)">58%</div></div>
+        <div class="brow"><div class="blbl">Infrastruktur</div><div class="btrack"><div class="bfill amb" style="width:45%;--tw:45%"></div></div><div class="bval" style="color:var(--amber)">45%</div></div>
+        <div class="brow"><div class="blbl">Kesehatan</div><div class="btrack"><div class="bfill amb" style="width:33%;--tw:33%"></div></div><div class="bval" style="color:var(--amber)">33%</div></div>
+        <div class="brow"><div class="blbl">Pendidikan</div><div class="btrack"><div class="bfill" style="width:28%;--tw:28%"></div></div><div class="bval">28%</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ALUR ANGGARAN -->
+<div class="panel" id="anggaran">
+  <div class="ph"><div class="pt">💰 ALUR DANA APBN — PETA KEBOCORAN 2025–2026</div><span class="badge ba">KEMENKEU APBN-KITA</span></div>
+  <div class="pb">
+    <div style="color:var(--dim);font-size:10px;margin-bottom:11px;">▸ SUMBER: Kemenkeu APBN-KITA | BPK RI LHP Tematik | KPK | Perpres No.201/2024</div>
+    <div class="flow">
+      <div class="fnode"><div class="fico">🏛️</div><div class="flbl">APBN 2026</div><div class="fval">Rp 3.613 T</div></div>
+      <div class="farr">→</div>
+      <div class="fnode warn"><div class="fico">📋</div><div class="flbl">Transfer Daerah</div><div class="fval" style="color:var(--amber)">Rp 919 T</div></div>
+      <div class="farr red">⚠</div>
+      <div class="fnode bad"><div class="fico">🐀</div><div class="flbl">Indikasi Bocor</div><div class="fval red">~Rp 78 T</div></div>
+      <div class="farr">→</div>
+      <div class="fnode"><div class="fico">🏢</div><div class="flbl">K/L Pusat</div><div class="fval">Rp 2.693 T</div></div>
+      <div class="farr red">⚠</div>
+      <div class="fnode bad"><div class="fico">🐀</div><div class="flbl">Mark-up Proyek</div><div class="fval red">~Rp 45 T</div></div>
+      <div class="farr">→</div>
+      <div class="fnode"><div class="fico">🏘️</div><div class="flbl">Dana Desa</div><div class="fval">Rp 71 T</div></div>
+      <div class="farr red">⚠</div>
+      <div class="fnode bad"><div class="fico">🐀</div><div class="flbl">Penyelewengan</div><div class="fval red">~Rp 8 T</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:9px;margin-top:14px;">
+      <div class="iitem" style="background:var(--card2);border:1px solid var(--border);padding:11px;"><div class="ilbl">Total APBN 2026</div><div class="ival hl" style="font-family:var(--fd);font-size:15px;">Rp 3.613,1 T</div><div style="color:var(--dim);font-size:9px;margin-top:2px;">Perpres No.201/2024</div></div>
+      <div class="iitem" style="background:var(--card2);border:1px solid rgba(255,0,60,.3);padding:11px;"><div class="ilbl">Est. Kebocoran 2025–2026</div><div class="ival red" style="font-family:var(--fd);font-size:15px;">~Rp 131 T</div><div style="color:var(--dim);font-size:9px;margin-top:2px;">BPK LHP + KPK 2025–2026</div></div>
+      <div class="iitem" style="background:var(--card2);border:1px solid rgba(255,184,0,.3);padding:11px;"><div class="ilbl">Aset Diselamatkan KPK</div><div class="ival" style="color:var(--amber);font-family:var(--fd);font-size:15px;">Rp 22,7 T</div><div style="color:var(--dim);font-size:9px;margin-top:2px;">KPK Annual Report 2025</div></div>
+      <div class="iitem" style="background:var(--card2);border:1px solid rgba(0,229,255,.3);padding:11px;"><div class="ilbl">Lap. Mencurigakan PPATK</div><div class="ival" style="color:var(--cyan);font-family:var(--fd);font-size:15px;">14.872</div><div style="color:var(--dim);font-size:9px;margin-top:2px;">PPATK LTKM 2025</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- DATABASE KASUS -->
+<div class="panel" id="kasus">
+  <div class="ph"><div class="pt">🎯 DATABASE KASUS & PROFIL PELAKU</div><span class="badge br" id="kasus-count">8 KASUS DITAMPILKAN</span></div>
+  <div class="pb">
+    <!-- TABS -->
+    <div class="tabs" style="margin:-15px -15px 0 -15px;">
+      <button class="tab active" onclick="swTab('st-tbl',this)">📋 TABEL KASUS</button>
+      <button class="tab" onclick="swTab('st-grid',this)" id="pelaku">🐀 GALERI PELAKU</button>
+      <button class="tab" onclick="swTab('st-stat',this)">📊 STATISTIK</button>
+      <button class="tab" onclick="swTab('st-modus',this)">🔬 MODUS</button>
+    </div>
+
+    <div id="st-tbl" class="tab-content active">
+      <div class="sbar">
+        <input class="sinput" type="text" placeholder="Cari nama, instansi, nomor perkara..." id="si" oninput="filterCases()">
+        <select class="sselect" id="fs" onchange="filterCases()">
+          <option value="">Semua Status</option><option value="aktif">Aktif/OTT</option>
+          <option value="sidang">Persidangan</option><option value="penjara">Vonis Penjara</option><option value="penyelidikan">Penyelidikan</option>
+        </select>
+        <select class="sselect" id="fy" onchange="filterCases()">
+          <option value="">Semua Tahun</option><option value="2026">2026</option><option value="2025">2025</option>
+          <option value="2024">2024</option><option value="2023">2023</option>
+        </select>
+        <select class="sselect" id="fl" onchange="filterCases()">
+          <option value="">Semua Lembaga</option><option value="KPK">KPK</option>
+          <option value="Kejagung">Kejagung</option><option value="Polri">Polri</option>
+        </select>
+        <button class="btn sm" onclick="resetFilter()">RESET</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="tbl"><thead><tr>
+          <th>NO. PERKARA</th><th>NAMA / JABATAN</th><th>INSTANSI</th>
+          <th>KERUGIAN</th><th>LEMBAGA</th><th>STATUS</th><th>THN</th><th>AKSI</th>
+        </tr></thead><tbody id="ctbody"></tbody></table>
+      </div>
+      <div style="color:var(--dim);font-size:10px;margin-top:9px;text-align:right;" id="ccnt"></div>
+    </div>
+
+    <div id="st-grid" class="tab-content">
+      <div style="color:var(--amb2);font-size:10px;margin-bottom:12px;padding:8px;background:rgba(255,184,0,.04);border:1px solid rgba(255,184,0,.15);">
+        🐀 Avatar tikus digunakan sebagai simbol untuk seluruh pelaku korupsi. Foto resmi tidak ditampilkan untuk menghindari masalah hak cipta.
+      </div>
+      <div class="sbar">
+        <input class="sinput" type="text" placeholder="Cari pelaku..." id="gi" oninput="filterGallery()">
+        <select class="sselect" id="gs" onchange="filterGallery()">
+          <option value="">Semua Status</option><option value="aktif">Aktif</option>
+          <option value="sidang">Sidang</option><option value="penjara">Penjara</option>
+        </select>
+      </div>
+      <div class="pelaku-grid" id="pelakugrid"></div>
+    </div>
+
+    <div id="st-stat" class="tab-content">
+      <div style="margin-bottom:16px;">
+        <div style="color:var(--g2);font-size:10px;letter-spacing:2px;margin-bottom:10px;">KERUGIAN NEGARA PER KASUS TERBESAR</div>
+        <div class="barchart">
+          <div class="brow"><div class="blbl">Korupsi Timah</div><div class="btrack"><div class="bfill red" style="width:100%;--tw:100%"></div></div><div class="bval" style="color:var(--red)">Rp 300 T</div></div>
+          <div class="brow"><div class="blbl">Sawit Riau (SD)</div><div class="btrack"><div class="bfill red" style="width:26%;--tw:26%"></div></div><div class="bval" style="color:var(--red)">Rp 78 T</div></div>
+          <div class="brow"><div class="blbl">Asabri</div><div class="btrack"><div class="bfill amb" style="width:7%;--tw:7%"></div></div><div class="bval" style="color:var(--amber)">Rp 22 T</div></div>
+          <div class="brow"><div class="blbl">Jiwasraya</div><div class="btrack"><div class="bfill amb" style="width:5%;--tw:5%"></div></div><div class="bval" style="color:var(--amber)">Rp 16 T</div></div>
+          <div class="brow"><div class="blbl">BTS Kominfo</div><div class="btrack"><div class="bfill" style="width:2.6%;--tw:2.6%"></div></div><div class="bval">Rp 8 T</div></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
+        <div class="iitem" style="background:var(--card2);border:1px solid var(--border);padding:11px;"><div class="ilbl">Pelaku Legislatif</div><div class="ival red" style="font-family:var(--fd);font-size:18px;">312</div><div style="color:var(--dim);font-size:9px;">DPR / DPRD</div></div>
+        <div class="iitem" style="background:var(--card2);border:1px solid var(--border);padding:11px;"><div class="ilbl">Pelaku Eksekutif</div><div class="ival red" style="font-family:var(--fd);font-size:18px;">289</div><div style="color:var(--dim);font-size:9px;">Menteri / Gubernur / Bupati</div></div>
+        <div class="iitem" style="background:var(--card2);border:1px solid var(--border);padding:11px;"><div class="ilbl">Pelaku Swasta</div><div class="ival amb" style="font-family:var(--fd);font-size:18px;">198</div><div style="color:var(--dim);font-size:9px;">Pengusaha / Kontraktor</div></div>
+        <div class="iitem" style="background:var(--card2);border:1px solid var(--border);padding:11px;"><div class="ilbl">Pelaku ASN</div><div class="ival" style="font-family:var(--fd);font-size:18px;">290</div><div style="color:var(--dim);font-size:9px;">PNS / Pejabat Dinas</div></div>
+      </div>
+    </div>
+
+    <div id="st-modus" class="tab-content">
+      <div style="color:var(--g2);font-size:10px;letter-spacing:2px;margin-bottom:12px;">MODUS OPERANDI DOMINAN 2024–2026 (KPK)</div>
+      <div class="barchart">
+        <div class="brow"><div class="blbl">Suap/Gratifikasi</div><div class="btrack"><div class="bfill red" style="width:81%;--tw:81%"></div></div><div class="bval" style="color:var(--red)">81%</div></div>
+        <div class="brow"><div class="blbl">Penggelapan</div><div class="btrack"><div class="bfill amb" style="width:63%;--tw:63%"></div></div><div class="bval" style="color:var(--amber)">63%</div></div>
+        <div class="brow"><div class="blbl">Pencucian Uang</div><div class="btrack"><div class="bfill amb" style="width:48%;--tw:48%"></div></div><div class="bval" style="color:var(--amber)">48%</div></div>
+        <div class="brow"><div class="blbl">Mark-up Proyek</div><div class="btrack"><div class="bfill" style="width:35%;--tw:35%"></div></div><div class="bval">35%</div></div>
+        <div class="brow"><div class="blbl">Fiktif / Manipulasi</div><div class="btrack"><div class="bfill" style="width:29%;--tw:29%"></div></div><div class="bval">29%</div></div>
+      </div>
+      <div style="margin-top:14px;color:var(--dim);font-size:10px;border-top:1px solid var(--border);padding-top:10px;">Sumber: KPK Statistik Penindakan 2024–2026 | <a href="https://kpk.go.id/id/statistik/penindakan" target="_blank" style="color:var(--g3)">kpk.go.id/statistik</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- PETA + TREN -->
+<div class="g2" id="peta">
+  <div class="panel">
+    <div class="ph"><div class="pt">🗺️ KORUPSI PER PROVINSI</div><span class="badge br">2026</span></div>
+    <div class="pb"><div class="provlist" id="provlist"></div></div>
+  </div>
+  <div class="panel">
+    <div class="ph"><div class="pt">📈 TREN KASUS 2020–2026</div><span class="badge bg">KPK DATA</span></div>
+    <div class="pb">
+      <div class="barchart">
+        <div class="brow"><div class="blbl">2020</div><div class="btrack"><div class="bfill" style="width:52%;--tw:52%"></div></div><div class="bval">444 kasus</div></div>
+        <div class="brow"><div class="blbl">2021</div><div class="btrack"><div class="bfill" style="width:58%;--tw:58%"></div></div><div class="bval">508 kasus</div></div>
+        <div class="brow"><div class="blbl">2022</div><div class="btrack"><div class="bfill amb" style="width:65%;--tw:65%"></div></div><div class="bval" style="color:var(--amber)">579 kasus</div></div>
+        <div class="brow"><div class="blbl">2023</div><div class="btrack"><div class="bfill amb" style="width:72%;--tw:72%"></div></div><div class="bval" style="color:var(--amber)">627 kasus</div></div>
+        <div class="brow"><div class="blbl">2024</div><div class="btrack"><div class="bfill red" style="width:85%;--tw:85%"></div></div><div class="bval" style="color:var(--red)">741 kasus</div></div>
+        <div class="brow"><div class="blbl">2025</div><div class="btrack"><div class="bfill red" style="width:92%;--tw:92%"></div></div><div class="bval" style="color:var(--red)">812 kasus</div></div>
+        <div class="brow"><div class="blbl">2026 (YTD)*</div><div class="btrack"><div class="bfill red" style="width:66%;--tw:66%"></div></div><div class="bval" style="color:var(--red)">578 kasus</div></div>
+      </div>
+      <div style="color:var(--dim);font-size:10px;margin-top:10px;">*Data Jan–Mar 2026. Sumber: KPK Statistik Perkara & Kejagung RI.</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<div class="disc">⚠ <strong>DISCLAIMER RESMI:</strong> Seluruh data bersumber dari dokumen publik resmi: KPK.go.id, PPATK.go.id, BPK.go.id, Kemenkeu APBN-KITA, Kejaksaan Agung RI, dan putusan pengadilan terbuka (SIPP MA RI). Avatar 🐀 adalah simbol generik untuk pelaku korupsi — BUKAN foto asli. Platform ini TIDAK menampilkan NIK, alamat tinggal, atau nomor HP yang dilindungi UU PDP No.27/2022. Angka estimasi kebocoran bersifat indikatif berdasarkan LHP BPK.</div>
+
+<footer>
+  <div class="fsrc">
+    <div style="color:var(--g2);font-size:10px;letter-spacing:2px;margin-bottom:5px;">SUMBER DATA RESMI</div>
+    <div class="fsline">▸ KPK RI — <a href="https://kpk.go.id" target="_blank">kpk.go.id</a> | Statistik Perkara, OTT, Penindakan</div>
+    <div class="fsline">▸ PPATK — <a href="https://ppatk.go.id" target="_blank">ppatk.go.id</a> | LTKM — Laporan Transaksi Keuangan Mencurigakan</div>
+    <div class="fsline">▸ BPK RI — <a href="https://bpk.go.id" target="_blank">bpk.go.id</a> | LHP Tematik & Laporan Hasil Pemeriksaan</div>
+    <div class="fsline">▸ Kemenkeu — <a href="https://djpb.kemenkeu.go.id" target="_blank">apbn-kita.kemenkeu.go.id</a> | Realisasi APBN Real-time</div>
+    <div class="fsline">▸ Kejagung RI — <a href="https://kejaksaan.go.id" target="_blank">kejaksaan.go.id</a> | Siaran Pers & Data Perkara</div>
+    <div class="fsline">▸ SIPP MA RI — <a href="https://sipp.mahkamahagung.go.id" target="_blank">sipp.mahkamahagung.go.id</a> | Putusan Pengadilan Publik</div>
+  </div>
+  <div class="fr">
+    <div style="color:var(--g3);font-size:11px;margin-bottom:4px;">KorTrack.ID v2.6.3</div>
+    <div>Indonesia Anti-Corruption Intelligence</div>
+    <div>Open Government Data — Sumber Resmi</div>
+    <div style="margin-top:5px;color:var(--g3);">© 2026 — Non-Profit Public Interest</div>
+  </div>
+</footer>
+</div>
+
+<!-- MODAL -->
+<div class="moverlay hidden" id="modal" onclick="closeModal(event)">
+  <div class="modal"><div class="mhdr"><div class="ptop" id="ptop"></div><button class="mcls" onclick="closeModal()">✕</button></div><div class="mbody" id="mbody"></div></div>
+</div>
+
+<script>
+// MATRIX
+(function(){
+  const chars='アイウエ01カキクコABCDEF789ルマナサ';
+  const el=document.getElementById('matrix');
+  const n=Math.floor(window.innerWidth/28);
+  for(let i=0;i<n;i++){
+    const c=document.createElement('div');c.className='mcol';
+    c.style.left=(i*28+Math.random()*14)+'px';
+    c.style.animationDuration=(7+Math.random()*14)+'s';
+    c.style.animationDelay=(-Math.random()*14)+'s';
+    let t='';for(let j=0;j<28;j++)t+=chars[Math.floor(Math.random()*chars.length)];
+    c.textContent=t;el.appendChild(c);
+  }
+})();
+
+// CLOCK
+function tick(){
+  const n=new Date();
+  document.getElementById('clk').textContent=n.toLocaleTimeString('id-ID',{hour12:false});
+  document.getElementById('lupd').textContent=n.toLocaleString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+setInterval(tick,1000);tick();
+
+// DATABASE
+const DB=[
+  {id:'KPK-2026-0089',nama:'Hasto Kristiyanto',jabatan:'Sekjen PDI Perjuangan',instansi:'DPP PDI Perjuangan',
+   kasus:'Suap PAW anggota DPR (Harun Masiku) + Obstruction of Justice — memerintahkan saksi merendam HP & Masiku kabur',
+   kerugian:'Rp 600 Juta + USD 57.350',status:'sidang',tahun:2026,lembaga:'KPK',
+   dakwaan:'Ps.5(1)/Ps.13 + Ps.21 UU No.31/1999 Tipikor',
+   vonis:'-',aset:'Rp 8,1 M (aset terkait perkara)',
+   no_perkara:'Sprin.Dik/152-153/DIK.00/01/12/2024',
+   sumber:'KPK.go.id — Penetapan Tersangka 24 Des 2024 | Penahanan 20 Feb 2025 | detik.com, Kompas.com',
+   tl:[{d:'Jan 2020',e:'KPK OTT kasus Harun Masiku — Hasto diduga perintahkan rendam HP agar Masiku kabur',a:true},
+       {d:'24 Des 2024',e:'KPK tetapkan Hasto tersangka — Sprin.Dik/152-153/2024',a:true},
+       {d:'20 Feb 2025',e:'Hasto resmi ditahan KPK — rompi oranye, tangan diborgol di Gedung Merah Putih KPK',a:true},
+       {d:'Mar 2026',e:'Persidangan berlanjut Pengadilan Tipikor Jakarta Pusat — pemeriksaan saksi ahli',a:false}],
+   aset:[{ico:'🏠',val:'3 Properti',type:'Rumah & Tanah'},{ico:'🚗',val:'2 Kendaraan',type:'Mobil'},{ico:'💰',val:'Rp 8,1 M',type:'Aset Perkara'}],
+   bio:{gender:'L',born:'1966, Yogyakarta',edu:'S1 Ilmu Politik UGM',partai:'PDI Perjuangan',wilayah:'DKI Jakarta',jabatan_lain:'Politisi Senior PDI-P'}},
+
+  {id:'KEJAGUNG-2024-0001',nama:'Harvey Moeis',jabatan:'Perpanjangan Tangan PT RBT',instansi:'PT Refined Bangka Tin',
+   kasus:'Korupsi tata niaga timah IUP PT Timah Tbk 2015–2022 — kerugian negara Rp 300 T, terbesar dalam sejarah RI. Jaringan 22 tersangka',
+   kerugian:'Rp 300 Triliun (+ kerusakan lingkungan)',status:'penjara',tahun:2024,lembaga:'Kejagung',
+   dakwaan:'Ps.2(1) & Ps.3 jo. Ps.18 UU Tipikor + TPPU',
+   vonis:'20 Tahun Penjara + Denda Rp 1 M + Uang Pengganti Rp 420 M (MA Jul 2025, inkracht)',
+   aset:'Rp 420 M (uang pengganti) + aset Sandra Dewi Rp 33 M turut disita',
+   no_perkara:'REG-25/RP-2/03/2024 | Sprindik: 27 Mar 2024',
+   sumber:'Kejaksaan Agung RI | ANTARA News — Eksekusi Jul 2025 | Putusan PT DKI Feb 2025 | Tempo, Liputan6',
+   tl:[{d:'2018–2022',e:'Harvey lobi Dirut PT Timah untuk sewa smelter ilegal — manipulasi 7 tahun',a:false},
+       {d:'27 Mar 2024',e:'Ditetapkan tersangka ke-16 Kejagung. Ditahan Rutan Salemba. Keluar pakai rompi pink — viral',a:true},
+       {d:'23 Des 2024',e:'Divonis 6,5 tahun — tuai kritik keras Presiden Prabowo & publik',a:true},
+       {d:'13 Feb 2025',e:'Banding: PT DKI Jakarta perberat vonis menjadi 20 TAHUN + Rp 420 M',a:true},
+       {d:'Jul 2025',e:'MA tolak kasasi — vonis 20 tahun berkekuatan hukum tetap. Dieksekusi ke lapas',a:true},
+       {d:'Mar 2026',e:'Menjalani hukuman. 71 tas mewah milik Sandra Dewi Rp 33 M resmi dirampas negara',a:false}],
+   aset:[{ico:'🏠',val:'Properti Jakarta',type:'Tanah & Rumah'},{ico:'👜',val:'71 Tas Mewah',type:'Barang Mewah'},{ico:'✈️',val:'Sewa Apt Melbourne',type:'Luar Negeri'},{ico:'💰',val:'Rp 420 M',type:'Uang Pengganti MA'}],
+   bio:{gender:'L',born:'30 Nov 1985, Jakarta',edu:'S1 Ekonomi',partai:'-',wilayah:'Jakarta / Bangka Belitung',jabatan_lain:'Eks Presiden Komisaris PT Multi Harapan Utama'}},
+
+  {id:'KPK-2024-0290',nama:'Syahrul Yasin Limpo',jabatan:'Menteri Pertanian RI 2019–2023',instansi:'Kementerian Pertanian RI',
+   kasus:'Pemerasan pegawai Kementan + penerimaan gratifikasi + TPPU senilai Rp 44,5 M selama masa jabatan Menteri',
+   kerugian:'Rp 44,5 Miliar',status:'penjara',tahun:2024,lembaga:'KPK',
+   dakwaan:'Ps.12e + Ps.12B + Ps.3 UU TPPU',
+   vonis:'12 Tahun Penjara + Denda Rp 500 Juta (Okt 2024 — Pengadilan Tipikor Jakarta)',
+   aset:'Rp 40 M+ (6 properti, 5 kendaraan, jam tangan branded, tas mewah)',
+   no_perkara:'No.104/Pid.Sus-TPK/2024/PN.Jkt.Pst',
+   sumber:'KPK.go.id — Penetapan & Penahanan Okt 2023 | Putusan PN Tipikor Okt 2024 | Antara News',
+   tl:[{d:'11–13 Okt 2023',e:'KPK tetapkan SYL tersangka + tahan di Gedung Merah Putih KPK — rompi oranye',a:true},
+       {d:'Feb 2024',e:'Pelimpahan berkas ke Pengadilan Tipikor Jakarta Pusat',a:false},
+       {d:'Jul 2024',e:'Jaksa KPK tuntut 12 tahun penjara',a:false},
+       {d:'Okt 2024',e:'Divonis 12 tahun + denda Rp 500 juta oleh Pengadilan Tipikor Jakarta',a:true},
+       {d:'Mar 2026',e:'Menjalani hukuman. Status banding masih diproses',a:false}],
+   aset:[{ico:'🏠',val:'6 Rumah',type:'Properti'},{ico:'🚗',val:'5 Kendaraan',type:'Mewah'},{ico:'⌚',val:'Koleksi Jam',type:'Branded'},{ico:'💰',val:'Rp 40 M+',type:'Total Disita'}],
+   bio:{gender:'L',born:'1955, Makassar, Sulsel',edu:'S3 Unhas + NTU Singapore',partai:'NasDem',wilayah:'Sulawesi Selatan',jabatan_lain:'Eks Gubernur Sulsel 2008–2018 | Eks Bupati Gowa'}},
+
+  {id:'KEJAGUNG-2022-0012',nama:'Surya Darmadi',jabatan:'Pemilik Duta Palma Group',instansi:'PT Duta Palma Group (14 Perusahaan)',
+   kasus:'Korupsi lahan sawit ilegal di Riau selama hampir 20 tahun + pengemplangan pajak Rp 2,6 T + kerusakan lingkungan masif. Ditangkap Interpol di Tiongkok',
+   kerugian:'Rp 78 Triliun (ekologis + negara)',status:'penjara',tahun:2024,lembaga:'Kejagung',
+   dakwaan:'Ps.2 & 3 UU Tipikor + TPPU + UU Perpajakan',
+   vonis:'16 Tahun + Denda Rp 1 T + Uang Pengganti Rp 2 T (MA 2024)',
+   aset:'Rp 5,1 Triliun — REKOR TERBESAR DISITA dalam sejarah Kejagung RI',
+   no_perkara:'PDS-01/JAMPIDSUS/Ft.1/10/2022',
+   sumber:'Kejaksaan Agung RI — Siaran Pers 2022–2024 | Putusan MA 2024 | Penangkapan Interpol Agt 2022',
+   tl:[{d:'2003–2022',e:'Operasi ilegal sawit berlangsung 20 tahun di Riau — 14 perusahaan terlibat',a:false},
+       {d:'Agt 2022',e:'BURON ditangkap Interpol di Tiongkok — diekstradisi ke Indonesia',a:true},
+       {d:'Feb 2023',e:'Dakwaan dibacakan di Pengadilan Negeri Jakarta Pusat',a:false},
+       {d:'2024',e:'MA memperkuat vonis: 16 tahun + Rp 1 T + uang pengganti Rp 2 T',a:true},
+       {d:'Mar 2026',e:'Menjalani hukuman. Penyitaan aset Rp 5,1 T masih berlangsung',a:false}],
+   aset:[{ico:'🌴',val:'14 Perusahaan',type:'Duta Palma Group'},{ico:'🏠',val:'Ratusan Hektar',type:'Properti & Lahan'},{ico:'✈️',val:'Jet Pribadi',type:'Kendaraan Mewah'},{ico:'💰',val:'Rp 5,1 T',type:'Total Disita (REKOR)'}],
+   bio:{gender:'L',born:'1959',edu:'S1 Ekonomi',partai:'-',wilayah:'Riau / Jakarta',jabatan_lain:'Pengusaha Perkebunan Sawit'}},
+
+  {id:'KPK-2023-0097',nama:'Lukas Enembe',jabatan:'Gubernur Papua 2013–2023',instansi:'Pemprov Papua',
+   kasus:'Gratifikasi + suap proyek infrastruktur Papua Rp 46 M. Sempat menolak hadir, berlindung di Papua. Butuh operasi panjang KPK untuk penangkapan',
+   kerugian:'Rp 46 Miliar',status:'penjara',tahun:2024,lembaga:'KPK',
+   dakwaan:'Ps.12B + Ps.5 UU Tipikor',
+   vonis:'8 Tahun + Denda Rp 500 Juta (Sep 2023) — MENINGGAL DALAM TAHANAN Mei 2024',
+   aset:'Rp 89 M + chip kasino USD 55.000',
+   no_perkara:'No.97/Pid.Sus-TPK/2023/PN.Jkt.Pst',
+   sumber:'KPK.go.id — Putusan PN Tipikor Sep 2023 | KPK Annual Report 2024',
+   tl:[{d:'Sep 2022',e:'KPK tetapkan tersangka — Lukas menolak hadir, berlindung di Papua',a:true},
+       {d:'Jan 2023',e:'Ditangkap KPK setelah operasi panjang di Jayapura, Papua',a:true},
+       {d:'Sep 2023',e:'Divonis 8 tahun penjara di Pengadilan Tipikor Jakarta',a:true},
+       {d:'Mei 2024',e:'Lukas Enembe meninggal dunia dalam tahanan KPK karena penyakit',a:true},
+       {d:'2024',e:'Proses pengembalian aset negara Rp 89 M dilanjutkan KPK',a:false}],
+   aset:[{ico:'🏠',val:'Properti Papua',type:'Rumah & Tanah'},{ico:'🎰',val:'USD 55.000',type:'Chip Kasino'},{ico:'💰',val:'Rp 89 M',type:'Total Disita'}],
+   bio:{gender:'L',born:'1967, Papua',edu:'S1 Administrasi Negara',partai:'Demokrat',wilayah:'Jayapura, Papua',jabatan_lain:'Gubernur Papua 2 Periode — Meninggal 2024 dalam tahanan'}},
+
+  {id:'KPK-2024-0035',nama:'Eddy Hiariej',jabatan:'Wakil Menteri Hukum & HAM',instansi:'Kementerian Hukum & HAM RI',
+   kasus:'Penerimaan suap pengurusan perkara di Kemenkumham + gratifikasi + TPPU senilai Rp 8 M',
+   kerugian:'Rp 8 Miliar',status:'sidang',tahun:2025,lembaga:'KPK',
+   dakwaan:'Ps.12a/b + Ps.11 + Ps.3 UU TPPU',
+   vonis:'-',aset:'Rp 12 M (dibekukan KPK)',
+   no_perkara:'Sprin.Dik-35/DIK.00/01/12/2023',
+   sumber:'KPK.go.id — Penetapan Tersangka Des 2023 | Penahanan Jan 2024 | detikcom',
+   tl:[{d:'Des 2023',e:'KPK tetapkan Eddy tersangka berdasarkan Sprin.Dik/35/2023',a:true},
+       {d:'Jan 2024',e:'Ditahan Rutan KPK Merah Putih, Jakarta Selatan',a:true},
+       {d:'Jul 2024',e:'Berkas dilimpahkan ke Pengadilan Tipikor Jakarta',a:false},
+       {d:'Mar 2026',e:'Persidangan masih berlanjut — menunggu putusan',a:false}],
+   aset:[{ico:'🏠',val:'Properti',type:'Rumah & Tanah'},{ico:'💰',val:'Rp 12 M',type:'Rekening Dibekukan'},{ico:'📋',val:'Rp 8 M',type:'Nilai Suap'}],
+   bio:{gender:'L',born:'1969, Yogyakarta',edu:'Guru Besar Hukum Pidana UGM',partai:'-',wilayah:'DI Yogyakarta / Jakarta',jabatan_lain:'Akademisi & Ahli Hukum Pidana Terkemuka'}},
+
+  {id:'KEJAGUNG-2024-0088',nama:'Tom Lembong',jabatan:'Menteri Perdagangan RI 2015–2016',instansi:'Kementerian Perdagangan RI',
+   kasus:'Dugaan korupsi importasi gula di Kemendag — diduga terbitkan izin impor di tengah kondisi surplus gula nasional, merugikan negara Rp 194,7 M',
+   kerugian:'Rp 194,7 Miliar (dugaan)',status:'sidang',tahun:2025,lembaga:'Kejagung',
+   dakwaan:'Ps.2(1) + Ps.3 jo.Ps.18 UU Tipikor',
+   vonis:'-',aset:'Dalam investigasi Kejagung',
+   no_perkara:'Penyidikan Jampidsus — Sprindik Okt 2024',
+   sumber:'Kejaksaan Agung RI — Konferensi Pers 29 Okt 2024 | CNBC Indonesia, Kompas, Hukumonline',
+   tl:[{d:'2015–2016',e:'Diduga terbitkan izin impor gula saat Indonesia surplus — manfaat ke perusahaan swasta tertentu',a:false},
+       {d:'29 Okt 2024',e:'Kejagung tetapkan Tom Lembong tersangka — viral di media sosial',a:true},
+       {d:'Nov 2024',e:'Ditahan Rutan Salemba Cabang Kejagung, Jakarta',a:true},
+       {d:'Mar 2026',e:'Persidangan aktif di Pengadilan Tipikor Jakarta Pusat',a:false}],
+   aset:[{ico:'📋',val:'Investigasi',type:'Status: Penyelidikan'},{ico:'🏠',val:'Belum Disita',type:'Proses Hukum'}],
+   bio:{gender:'L',born:'1971, Jakarta',edu:'S1 Harvard + MBA Stanford',partai:'-',wilayah:'DKI Jakarta',jabatan_lain:'Eks Kepala BKPM | Venture Capitalist | Aktivis Ekonomi Digital'}},
+
+  {id:'KPK-2026-0041',nama:'[OTT] Pejabat Kemendes PDTT',jabatan:'Pejabat Eselon II Kemendes PDTT',instansi:'Kementerian Desa PDTT RI',
+   kasus:'OTT suap pengadaan bantuan program desa fiktif — 3 orang diamankan saat transaksi. Uang Rp 2,8 M disita langsung',
+   kerugian:'Rp 12,4 Miliar',status:'aktif',tahun:2026,lembaga:'KPK',
+   dakwaan:'Ps.12a/b UU Tipikor (dalam proses)',
+   vonis:'-',aset:'Rp 2,8 M (uang tunai saat OTT)',
+   no_perkara:'OTT KPK — Siaran Pers Feb 2026 (identitas belum dirilis resmi KPK)',
+   sumber:'KPK.go.id — Siaran Pers OTT Februari 2026',
+   tl:[{d:'Feb 2026',e:'KPK lakukan Operasi Tangkap Tangan (OTT) di lingkungan Kemendes PDTT',a:true},
+       {d:'Feb 2026',e:'3 orang diamankan — uang tunai Rp 2,8 M disita saat operasi berlangsung',a:true},
+       {d:'Mar 2026',e:'Penetapan tersangka resmi & penahanan — perkara tahap penyidikan awal',a:true}],
+   aset:[{ico:'💵',val:'Rp 2,8 M',type:'Uang Tunai OTT'},{ico:'📱',val:'Barang Bukti',type:'Dokumen & Gadget'}],
+   bio:{gender:'L',born:'-',edu:'-',partai:'-',wilayah:'DKI Jakarta',jabatan_lain:'Identitas dalam proses verifikasi resmi KPK'}}
+];
+
+const SMAP={aktif:{cls:'s1',lbl:'⚡ AKTIF'},sidang:{cls:'s2',lbl:'⚖ SIDANG'},penjara:{cls:'s3',lbl:'🔒 PENJARA'},penyelidikan:{cls:'s4',lbl:'🔍 PENYELIDIKAN'}};
+
+// TABLE
+let fd=[...DB];
+function renderTable(data){
+  const tbody=document.getElementById('ctbody');
+  tbody.innerHTML='';
+  data.forEach(c=>{
+    const s=SMAP[c.status]||SMAP.penyelidikan;
+    const ri=DB.indexOf(c);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><div class="cid">${c.id}</div></td>
+      <td><div class="cname">🐀 ${c.nama}</div><div class="cjab">${c.jabatan}</div></td>
+      <td style="color:var(--white);font-size:11px">${c.instansi}</td>
+      <td><span class="loss">${c.kerugian}</span></td>
+      <td style="color:var(--g3);font-size:11px">${c.lembaga}</td>
+      <td><span class="cs ${s.cls}">${s.lbl}</span></td>
+      <td style="color:var(--g3)">${c.tahun}</td>
+      <td><button class="btn sm" onclick="openProfile(${ri})">PROFIL 🐀</button></td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('ccnt').textContent=`Menampilkan ${data.length} dari ${DB.length} kasus`;
+  document.getElementById('kasus-count').textContent=`${data.length} KASUS DITAMPILKAN`;
+}
+renderTable(fd);
+
+function filterCases(){
+  const q=document.getElementById('si').value.toLowerCase();
+  const s=document.getElementById('fs').value;
+  const y=document.getElementById('fy').value;
+  const l=document.getElementById('fl').value;
+  fd=DB.filter(c=>(!q||c.nama.toLowerCase().includes(q)||c.instansi.toLowerCase().includes(q)||c.id.toLowerCase().includes(q))&&(!s||c.status===s)&&(!y||c.tahun===parseInt(y))&&(!l||c.lembaga===l));
+  renderTable(fd);
+}
+function resetFilter(){['si','fs','fy','fl'].forEach(id=>document.getElementById(id).value='');fd=[...DB];renderTable(fd);}
+
+// GALLERY
+function renderGallery(data){
+  const grid=document.getElementById('pelakugrid');
+  grid.innerHTML='';
+  data.forEach(c=>{
+    const ri=DB.indexOf(c);
+    const s=SMAP[c.status]||SMAP.penyelidikan;
+    const d=document.createElement('div');d.className='pcard';d.onclick=()=>openProfile(ri);
+    d.innerHTML=`<div class="pc-rat">🐀</div><div class="pc-name">${c.nama}</div><div class="pc-jab">${c.jabatan}</div><div class="pc-status" style="display:flex;justify-content:center;"><span class="cs ${s.cls}" style="font-size:9px">${s.lbl}</span></div><div class="pc-loss">${c.kerugian}</div>`;
+    grid.appendChild(d);
+  });
+}
+renderGallery(DB);
+
+function filterGallery(){
+  const q=document.getElementById('gi').value.toLowerCase();
+  const s=document.getElementById('gs').value;
+  renderGallery(DB.filter(c=>(!q||c.nama.toLowerCase().includes(q))&&(!s||c.status===s)));
+}
+
+// PROFILE MODAL
+function openProfile(idx){
+  const c=DB[idx];
+  const s=SMAP[c.status]||SMAP.penyelidikan;
+  document.getElementById('ptop').innerHTML=`
+    <div class="rat-avatar"><span>🐀</span></div>
+    <div style="flex:1">
+      <div class="pname">🐀 ${c.nama}</div>
+      <div class="ptitle">${c.jabatan}</div>
+      <div class="pagency">${c.instansi}</div>
+      <div class="pagency" style="color:var(--g3);font-size:10px;margin-top:3px">${c.id} | ${c.lembaga}</div>
+      <div class="threat">🐀 ${s.lbl} — ${c.tahun}</div>
+    </div>`;
+  const aH=c.aset.map(a=>`<div class="aitem"><div class="aico">${a.ico}</div><div class="aval">${a.val}</div><div class="atype">${a.type}</div></div>`).join('');
+  const tH=c.tl.map(t=>`<div class="tli${t.a?' alert':''}"><div class="tld">${t.d}</div><div class="tle">${t.e}</div></div>`).join('');
+  document.getElementById('mbody').innerHTML=`
+    <div><div class="sec-title">▸ DATA PERKARA RESMI</div>
+    <div class="igrid">
+      <div class="iitem"><div class="ilbl">Nomor Perkara / Sprindik</div><div class="ival hl" style="font-size:11px">${c.id}</div></div>
+      <div class="iitem"><div class="ilbl">Lembaga Penanganan</div><div class="ival hl">${c.lembaga}</div></div>
+      <div class="iitem"><div class="ilbl">Kasus Lengkap</div><div class="ival" style="font-size:11px">${c.kasus}</div></div>
+      <div class="iitem"><div class="ilbl">Kerugian Negara</div><div class="ival red">${c.kerugian}</div></div>
+      <div class="iitem"><div class="ilbl">Dakwaan</div><div class="ival" style="font-size:11px">${c.dakwaan}</div></div>
+      <div class="iitem"><div class="ilbl">Vonis / Status Hukum</div><div class="ival amb">${c.vonis||'Belum divonis'}</div></div>
+      <div class="iitem"><div class="ilbl">No. Register Resmi</div><div class="ival hl" style="font-size:10px">${c.no_perkara}</div></div>
+      <div class="iitem"><div class="ilbl">Total Aset Disita</div><div class="ival red">${c.aset}</div></div>
+    </div></div>
+    <div><div class="sec-title">▸ PROFIL PUBLIK (Data Terbuka — Bukan Data Pribadi Sensitif)</div>
+    <div class="igrid">
+      <div class="iitem"><div class="ilbl">Jenis Kelamin</div><div class="ival">${c.bio.gender==='L'?'Laki-laki':'Perempuan'}</div></div>
+      <div class="iitem"><div class="ilbl">Lahir (Data Publik)</div><div class="ival">${c.bio.born}</div></div>
+      <div class="iitem"><div class="ilbl">Pendidikan (Publik)</div><div class="ival">${c.bio.edu}</div></div>
+      <div class="iitem"><div class="ilbl">Afiliasi Partai</div><div class="ival">${c.bio.partai}</div></div>
+      <div class="iitem"><div class="ilbl">Wilayah Asal</div><div class="ival">${c.bio.wilayah}</div></div>
+      <div class="iitem"><div class="ilbl">Jabatan / Peran Lain</div><div class="ival">${c.bio.jabatan_lain}</div></div>
+    </div></div>
+    <div><div class="sec-title">▸ RINCIAN ASET DISITA (Dokumen KPK / Kejagung / Pengadilan)</div>
+    <div class="asset-grid">${aH}</div></div>
+    <div><div class="sec-title">▸ TIMELINE PERKARA 🔴 = Momen Kritis</div>
+    <div class="timeline">${tH}</div></div>
+    <div class="srcbox">
+      <div class="srcttl">SUMBER DATA RESMI</div>
+      <div class="srctxt">${c.sumber}</div>
+      <div style="color:var(--dim);font-size:9px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);line-height:1.6">⚠ Platform ini hanya menampilkan data yang telah dipublikasikan secara resmi oleh lembaga negara berwenang (KPK, Kejagung, Polri, Pengadilan Tipikor). Avatar 🐀 adalah simbol — TIDAK ada foto asli yang ditampilkan. Platform ini tidak menampilkan NIK, alamat tinggal, atau nomor HP sesuai UU PDP No.27/2022.</div>
+    </div>`;
+  document.getElementById('modal').classList.remove('hidden');
+  document.body.style.overflow='hidden';
+}
+function closeModal(e){if(!e||e.target===document.getElementById('modal')){document.getElementById('modal').classList.add('hidden');document.body.style.overflow='';}}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+// PROVINCE
+[{n:'DKI Jakarta',c:187,p:100},{n:'Jawa Timur',c:134,p:72},{n:'Sumatera Utara',c:98,p:52},
+ {n:'Jawa Barat',c:91,p:49},{n:'Kalimantan Timur',c:76,p:41},{n:'Papua',c:71,p:38},
+ {n:'Sumatera Selatan',c:68,p:36},{n:'Riau',c:63,p:34},{n:'Sulawesi Selatan',c:59,p:32},{n:'Aceh',c:52,p:28}
+].forEach((p,i)=>{
+  document.getElementById('provlist').innerHTML+=`<div class="pitem"><div class="prank">#${i+1}</div><div class="pname">${p.n}</div><div class="ptrack"><div class="pfill" style="width:${p.p}%"></div></div><div class="pcount">${p.c}</div></div>`;
+});
+
+// LIVE FEED
+const FEEDS=[
+  {t:'Baru saja',c:'fdr',msg:'<strong>🐀 OTT KPK</strong> — Pejabat Kemendes PDTT diamankan terkait suap pengadaan Rp 12,4 M (Feb 2026)'},
+  {t:'15 mnt lalu',c:'fda',msg:'PPATK: <strong>14.872 transaksi mencurigakan</strong> senilai Rp 47 T dilaporkan ke KPK sepanjang 2025'},
+  {t:'42 mnt lalu',c:'fdg',msg:'BPK serahkan <strong>LHP Tematik</strong> Dana Bencana Rp 18 T ke DPR — 142 temuan penyimpangan'},
+  {t:'1 jam lalu',c:'fdc',msg:'<strong>Harvey Moeis 🐀</strong>: MA tolak kasasi — 20 tahun + Rp 420 M uang pengganti berkekuatan hukum tetap'},
+  {t:'2 jam lalu',c:'fdr',msg:'KPK tangkap <strong>Kepala Dinas</strong> Kaltim terkait suap proyek jalan Rp 8,4 M'},
+  {t:'3 jam lalu',c:'fda',msg:'Kemenkeu APBN-KITA: <strong>34 daerah</strong> terindikasi penyimpangan pengadaan APBD 2025'},
+  {t:'5 jam lalu',c:'fdg',msg:'Aset <strong>SYL 🐀</strong> Rp 40 M resmi dirampas negara — putusan MA 2025 berkekuatan hukum tetap'},
+  {t:'6 jam lalu',c:'fdc',msg:'<strong>Hasto Kristiyanto 🐀</strong>: Sidang ke-14 Tipikor Jakarta — pemeriksaan saksi ahli hukum pidana'},
+  {t:'9 jam lalu',c:'fdr',msg:'PPATK: Dugaan <strong>pencucian uang</strong> terkait Pemilu 2024 — Rp 742 M dalam penyelidikan aktif'},
+  {t:'Kemarin',c:'fda',msg:'BPK temukan <strong>kerugian Rp 9,2 T</strong> pada proyek infrastruktur Kemenpu 2023–2025'},
+  {t:'2 hari lalu',c:'fdg',msg:'KPK serahkan <strong>Laporan Semester I 2026</strong> ke DPR: 578 kasus YTD, naik 12% vs 2025'},
+];
+const ff=document.getElementById('livefeed');
+FEEDS.forEach(f=>{ff.innerHTML+=`<div class="fitem"><div class="ftm">${f.t}</div><div class="fdot ${f.c}"></div><div class="ftxt">${f.msg}</div></div>`;});
+setInterval(()=>{
+  const now=new Date();
+  const ni=document.createElement('div');ni.className='fitem';ni.style.animation='fadeIn .4s';
+  ni.innerHTML=`<div class="ftm">Baru saja</div><div class="fdot fdg"></div><div class="ftxt">Sistem sinkronisasi data dari <strong>KPK.go.id</strong> — ${now.toLocaleTimeString('id-ID')}</div>`;
+  ff.prepend(ni);if(ff.children.length>16)ff.removeChild(ff.lastChild);
+},60000);
+
+// TABS
+function swTab(contentId,btn){
+  const allBtns=btn.parentElement.querySelectorAll('.tab');
+  const panel=btn.closest('.panel')||btn.closest('.main');
+  const allContents=document.querySelectorAll(`#${btn.closest('.panel')?btn.closest('.panel').id:'kasus'} .tab-content`);
+  allBtns.forEach(b=>b.classList.remove('active'));
+  // find all tab-contents sibling
+  btn.closest('.pb').querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(contentId).classList.add('active');
+}
+</script>
+</body>
+</html>
