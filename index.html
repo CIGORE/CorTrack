@@ -546,11 +546,11 @@ tbody tr:hover td{background:var(--bg3)}
       <div class="page-hdr"><h1>Peta Risiko Wilayah</h1><p>Seluruh 38 Provinsi Indonesia dengan kabupaten/kota · Filter bertingkat</p></div>
       <div class="g31">
         <div class="card">
-          <div class="c-hdr"><div class="c-title">Visual Distribusi Risiko</div></div>
-          <div class="map-ph">
-            <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
-            <span>Peta Interaktif Indonesia</span>
-            <span style="font-size:.67rem">38 Provinsi · Integrasi peta butuh backend</span>
+          <div class="c-hdr"><div class="c-title">Peta Risiko Provinsi Indonesia</div><div style="display:flex;gap:6px;flex-wrap:wrap" id="map-legend"></div></div>
+          <div style="padding:12px;overflow-x:auto">
+            <div id="svg-map-wrap" style="min-height:240px;background:var(--bg3);border-radius:var(--r2);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px">
+              <div id="svg-map" style="width:100%;overflow-x:auto"></div>
+            </div>
           </div>
         </div>
         <div class="card">
@@ -1074,7 +1074,7 @@ function setTheme(t){
   document.getElementById('theme-icon-m').innerHTML=p;
   state.theme=t;localStorage.setItem('theme',t);
 }
-function toggleTheme(){setTheme(state.theme==='dark'?'light':'dark')}
+function toggleTheme(){setTheme(state.theme==='dark'?'light':'dark');if(DATA.wilayah)renderSVGMap(DATA.wilayah.provinsi);}
 
 // ===== TREND CHART =====
 function renderTrend(){
@@ -1252,7 +1252,7 @@ function renderWilayah(){
     if(level&&w.level!==level)return false;
     if(q){
       const matchProv=w.nama.toLowerCase().includes(q)||w.ibukota.toLowerCase().includes(q);
-      const matchKab=w.kab.some(k=>k.toLowerCase().includes(q));
+      const matchKab=w.kab&&w.kab.some(k=>k.toLowerCase().includes(q));
       if(!matchProv&&!matchKab)return false;
     }
     return true;
@@ -1260,39 +1260,110 @@ function renderWilayah(){
   const tbody=document.getElementById('w-tbody');
   let rows='';
   filtered.forEach(w=>{
-    const highlightKab=q?w.kab.filter(k=>k.toLowerCase().includes(q)):[];
-    rows+=`<tr class="prov-row" data-id="${w.id}">
-      <td style="text-align:center;color:var(--txt3)"><span class="expand-icon">▶</span></td>
+    const kabs=w.kab||[];
+    const highlightKab=q?kabs.filter(k=>k.toLowerCase().includes(q)):[];
+    rows+=`<tr class="prov-row" data-id="${w.id}" onclick="toggleProvSub('${w.id}',this)">
+      <td style="text-align:center;color:var(--txt3);width:30px"><span class="expand-icon" id="ei-${w.id}">▶</span></td>
       <td style="font-weight:700">${q?hl(w.nama,q):esc(w.nama)}</td>
       <td style="color:var(--txt2);font-size:.76rem">${esc(w.ibukota)}</td>
       <td><span class="badge b-gray" style="font-size:.65rem">${esc(w.pulau)}</span></td>
-      <td style="text-align:center;font-weight:600">${w.kab.length}</td>
+      <td style="text-align:center;font-weight:600">${kabs.length}</td>
       <td style="text-align:center">${w.kasus}</td>
       <td style="text-align:center">${w.aktif}</td>
       <td style="color:var(--red);font-weight:600;white-space:nowrap">${esc(w.kerugian)}</td>
       <td><div style="display:flex;align-items:center;gap:6px"><span style="font-weight:700;min-width:20px">${w.skor}</span><div class="rbar" style="min-width:50px"><div class="rfill ${w.level}" style="width:${w.skor}%"></div></div></div></td>
       <td>${riskBadge(w.level)}</td>
     </tr>
-    <tr class="sub-row" id="sub-${w.id}" style="display:none">
-      <td colspan="10" style="padding:10px 16px 14px">
-        <div style="font-size:.72rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Kabupaten/Kota di ${esc(w.nama)} (${w.kab.length} wilayah)</div>
+    <tr id="sub-${w.id}" style="display:none">
+      <td colspan="10" style="padding:10px 16px 14px;background:var(--bg3);border-bottom:1px solid var(--border)">
+        <div style="font-size:.72rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">📍 ${kabs.length} Kabupaten/Kota di ${esc(w.nama)}</div>
         <div style="display:flex;flex-wrap:wrap;gap:5px">
-          ${w.kab.map(k=>`<span class="kab-tag ${highlightKab.includes(k)?'sel':''}">${q?hl(k,q):esc(k)}</span>`).join('')}
+          ${kabs.map(k=>`<span class="kab-tag${highlightKab.includes(k)?' sel':''}">${q?hl(k,q):esc(k)}</span>`).join('')}
         </div>
       </td>
     </tr>`;
   });
   tbody.innerHTML=rows||'<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--txt3)">Tidak ditemukan</td></tr>';
-  // click to expand
-  tbody.querySelectorAll('.prov-row').forEach(row=>{
-    row.addEventListener('click',()=>{
-      const id=row.dataset.id;
-      const sub=document.getElementById('sub-'+id);
-      const open=sub.style.display==='table-row';
-      sub.style.display=open?'none':'table-row';
-      row.classList.toggle('open',!open);
-    });
-  });
+  renderSVGMap(filtered);
+}
+function toggleProvSub(id,row){
+  const sub=document.getElementById('sub-'+id);
+  const ei=document.getElementById('ei-'+id);
+  if(!sub)return;
+  const isOpen=sub.style.display==='table-row';
+  sub.style.display=isOpen?'none':'table-row';
+  if(ei)ei.style.transform=isOpen?'rotate(0)':'rotate(90deg)';
+  row.classList.toggle('open',!isOpen);
+}
+
+// ===== SVG MAP CHOROPLETH =====
+function renderSVGMap(filtered){
+  const wrap=document.getElementById('svg-map');
+  if(!wrap)return;
+  const levelColor={critical:'var(--red)',high:'var(--orange)',medium:'var(--accent)',low:'var(--green)'};
+  const levelColorHex={critical:'#f85149',high:'#d29922',medium:'#58a6ff',low:'#3fb950'};
+  // Simplified block/tile map of Indonesia provinces by geography
+  const layout=[
+    // Row 0 - Sumatera belt
+    {row:0,col:0,id:'aceh'},{row:0,col:1,id:'sumut'},{row:0,col:2,id:'sumbar'},
+    {row:0,col:3,id:'riau'},{row:0,col:4,id:'kepri'},{row:0,col:5,id:'jambi'},
+    {row:0,col:6,id:'sumsel'},{row:0,col:7,id:'babel'},{row:0,col:8,id:'lampung'},
+    {row:0,col:9,id:'bengkulu'},
+    // Row 1 - Jawa+Bali+Nusa Tenggara
+    {row:1,col:0,id:'dki'},{row:1,col:1,id:'banten'},{row:1,col:2,id:'jabar'},
+    {row:1,col:3,id:'jateng'},{row:1,col:4,id:'diy'},{row:1,col:5,id:'jatim'},
+    {row:1,col:6,id:'bali'},{row:1,col:7,id:'ntb'},{row:1,col:8,id:'ntt'},
+    // Row 2 - Kalimantan
+    {row:2,col:0,id:'kalbar'},{row:2,col:1,id:'kalteng'},{row:2,col:2,id:'kalsel'},
+    {row:2,col:3,id:'kaltim'},{row:2,col:4,id:'kaltara'},
+    // Row 3 - Sulawesi
+    {row:3,col:0,id:'sulut'},{row:3,col:1,id:'gorontalo'},{row:3,col:2,id:'sulteng'},
+    {row:3,col:3,id:'sulbar'},{row:3,col:4,id:'sulsel'},{row:3,col:5,id:'sultra'},
+    {row:3,col:6,id:'maluku'},{row:3,col:7,id:'malut'},
+    // Row 4 - Papua
+    {row:4,col:0,id:'papua'},{row:4,col:1,id:'papbar'},{row:4,col:2,id:'papbarda'},
+    {row:4,col:3,id:'papteng'},{row:4,col:4,id:'pappeg'},{row:4,col:5,id:'papsel'},
+  ];
+  const dataMap={};
+  DATA.wilayah.provinsi.forEach(w=>dataMap[w.id]=w);
+  const CELL=58,GAP=4,PAD=8;
+  const cols=10,rows=5;
+  const W=cols*(CELL+GAP)+PAD*2;const H=rows*(CELL+GAP)+PAD*2+20;
+  let svgItems=layout.map(p=>{
+    const w=dataMap[p.id];if(!w)return'';
+    const x=PAD+p.col*(CELL+GAP);const y=PAD+p.row*(CELL+GAP);
+    const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+    const fill=levelColorHex[w.level];
+    const alpha=0.15+w.skor/100*0.55;
+    const textCol=isDark?'#e6edf3':'#1f2328';
+    const shortName=w.nama.replace('Sumatera','Sum.').replace('Kalimantan','Kal.').replace('Sulawesi','Sul.').replace('Nusa Tenggara','NT').replace('Kepulauan ','Kep.').replace('D.I. ','').replace('DKI ','').replace(' Pegunungan',' Peg.').replace(' Tenggara',' Tgr.').replace(' Selatan',' Sel.').replace(' Utara',' Utr.').replace(' Tengah',' Tgh.').replace(' Timur',' Tim.').replace(' Barat',' Bar.');
+    const lines=shortName.length>10?[shortName.slice(0,10),shortName.slice(10)]:[shortName];
+    return `<g onclick="highlightProv('${w.id}')" style="cursor:pointer">
+      <rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="6" 
+        fill="${fill}" fill-opacity="${alpha}" 
+        stroke="${fill}" stroke-width="1.5" stroke-opacity="0.6"
+        class="svg-prov" data-id="${w.id}"/>
+      <text x="${x+CELL/2}" y="${y+CELL/2-6}" text-anchor="middle" 
+        font-family="DM Sans,sans-serif" font-size="9" font-weight="700" 
+        fill="${textCol}" opacity="0.9">${lines[0]}</text>
+      ${lines[1]?`<text x="${x+CELL/2}" y="${y+CELL/2+5}" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="9" font-weight="700" fill="${textCol}" opacity="0.9">${lines[1]}</text>`:''}
+      <text x="${x+CELL/2}" y="${y+CELL-7}" text-anchor="middle" 
+        font-family="Syne,sans-serif" font-size="10" font-weight="800" 
+        fill="${fill}">${w.skor}</text>
+    </g>`;
+  }).join('');
+  // Legend
+  const legend=document.getElementById('map-legend');
+  if(legend)legend.innerHTML=[['critical','Kritis &gt;80'],['high','Tinggi 60-80'],['medium','Sedang 40-60'],['low','Rendah &lt;40']].map(([l,t])=>`<span style="display:flex;align-items:center;gap:3px;font-size:.65rem"><span style="width:8px;height:8px;border-radius:2px;background:${levelColorHex[l]};display:inline-block"></span>${t}</span>`).join('');
+  wrap.innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-height:320px;display:block">
+    <style>.svg-prov:hover{stroke-width:2.5;stroke-opacity:1;filter:brightness(1.2)}</style>
+    ${svgItems}
+  </svg>`;
+}
+function highlightProv(id){
+  // scroll to province row in table
+  const row=document.querySelector(`.prov-row[data-id="${id}"]`);
+  if(row){row.scrollIntoView({behavior:'smooth',block:'nearest'});toggleProvSub(id,row);}
 }
 
 // ===== PENGADAAN TABLE =====
